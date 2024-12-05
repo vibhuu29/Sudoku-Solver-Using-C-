@@ -1,0 +1,264 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <stdio.h>
+#include <stdbool.h>
+
+#define N 9
+
+// Function to print the Sudoku grid
+void printGrid(int grid[N][N]) {
+    for (int row = 0; row < N; row++) {
+        for (int col = 0; col < N; col++) {
+            if (col < N - 1) {
+                printf("%d", grid[row][col]);
+                if (col == 2) {
+                    printf("\033[0;36m | \033[0m");
+                }
+                else if (col == 5) {
+                    printf("\033[0;36m | \033[0m");
+                }
+                else {
+                    printf(" | ");
+                }
+            }
+            else {
+                printf("%d", grid[row][col]);
+            }
+        }
+        printf("\n");
+        if (row < N - 1) {
+            for (int col = 0; col <= N - 1; col++) {
+                if (row == 2) {
+                    if (col == 0) {
+                        printf("\033[0;36m--+\033[0m");  //prints in normal color
+                    }
+                    else if (col == N - 1) {
+                        printf("\033[0;36m--\033[0m");   //prints in normal color
+                    }
+                    else {
+                        printf("\033[0;36m---+\033[0m");
+                    }
+                }
+                else if (row == 5) {
+                    if (col == 0) {
+                        printf("\033[0;36m--+\033[0m");
+                    }
+                    else if (col == N - 1) {
+                        printf("\033[0;36m--\033[0m");
+                    }
+                    else {
+                        printf("\033[0;36m---+\033[0m");
+                    }
+                }
+                else {
+                    if (col == 0) {
+                        printf("--+");
+                    }
+                    else if (col == N - 1) {
+                        printf("--");
+                    }
+                    else if (col == 2) {
+                        printf("---");
+                        printf("\033[0;36m+\033[0m");
+                    }
+                    else if (col == 5) {
+                        printf("---");
+                        printf("\033[0;36m+\033[0m");
+                    }
+                    else {
+                        printf("---+");
+                    }
+                }
+            }
+        }
+        printf("\n");
+    }
+}
+
+// Function to check if a number is safe to place in a cell
+bool isSafe(int grid[N][N], int row, int col, int num) {
+    // Check the row
+    for (int x = 0; x < N; x++) {
+        if (grid[row][x] == num) {
+            return false;
+        }
+    }
+
+    // Check the column
+    for (int x = 0; x < N; x++) {
+        if (grid[x][col] == num) {
+            return false;
+        }
+    }
+
+    // Check the 3x3 sub-grid
+    int startRow = row - row % 3;   //calculates the starting row of that subgrid
+    int startCol = col - col % 3;   //calculates the starting col of that subgrid
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            if (grid[i + startRow][j + startCol] == num) {
+                return false;       //number is not placed if the same number is found in other cells
+            }
+        }
+    }
+
+    return true;
+}
+
+// Function to solve the Sudoku with the help of previously declared functions
+bool solveSudoku(int grid[N][N]) {
+    int row, col;
+    bool emptyCellFound = false;
+    int grid_0[N][N];
+
+    // Find an empty cell by checking if the cell is filled with entry 0
+    for (row = 0; row < N; row++) {
+        for (col = 0; col < N; col++) {
+            if (grid[row][col] == 0) {
+                emptyCellFound = true;
+                grid_0[row][col] = grid[row][col];
+                break;
+            }
+        }
+        if (emptyCellFound) {
+            break;
+        }
+    }
+
+    // Sudoku is complete if no empty cells are present
+    if (!emptyCellFound) {
+        return true;
+    }
+
+    // Placing digits 1-9
+    for (int num = 1; num <= 9; num++) {    //num++ ensures that every time a different number is checked
+        if (isSafe(grid, row, col, num)) {
+            grid[row][col] = num;
+
+            if (solveSudoku(grid)) {        //if solvesudoku return true, then the number is assigned.
+                return true;
+            }
+            grid[row][col] = 0; //cell is again assigned to 0 so that another number can be tried
+        }
+    }
+
+    return false; // check again if the no coditions are satisfied
+}
+int main() {
+    int process = 1;
+    while (process != 0) {
+        int grid[N][N];
+        for (int i = 0; i <= N - 1; i++) {   //Input the sudoku from user in form of 2*2 arrow
+            printf("Enter the elements of row %d (with space): ", i + 1);
+            for (int j = 0; j <= N - 1; j++) {
+                scanf("%d", &grid[i][j]);
+            }
+        }
+        printf("The given sudoku is: \n");
+        for (int i = 0; i <= N - 1; i++) {
+            for (int j = 0; j <= N - 1; j++) {
+                if (j < N - 1) {
+                    if (grid[i][j] == 0) {
+                        printf("\033[0;31m%d\033[0m", grid[i][j]);
+                        if (j == 2) {
+                            printf("\033[0;36m | \033[0m");
+                        }
+                        else if (j == 5) {
+                            printf("\033[0;36m | \033[0m");
+                        }
+                        else {
+                            printf(" | ");
+                        }
+                        //printf(" | ");
+                    }
+                    /*printf(" | ");*/
+                    else {
+                        printf("\033[0;32m%d\033[0m", grid[i][j]);
+                        if (j == 2) {
+                            printf("\033[0;36m | \033[0m");
+                        }
+                        else if (j == 5) {
+                            printf("\033[0;36m | \033[0m");
+                        }
+                        else {
+                            printf(" | ");
+                        }
+                    }
+                }
+                else {
+                    if (grid[i][j] == 0) {
+                        printf("\033[0;31m%d\033[0m", grid[i][j]);
+                    }
+                    else {
+                        printf("\033[0;32m%d\033[0m", grid[i][j]);
+                        //printf(" | ");
+                    }
+                    /*printf("%d", grid[i][j]);*/
+                }
+                //scanf("%d", &grid[i][j]);
+            }
+            printf("\n");
+            if (i < N - 1) {
+                for (int j = 0; j <= N - 1; j++) {
+                    if (i == 2) {
+                        if (j == 0) {
+                            printf("\033[0;36m--+\033[0m");
+                        }
+                        else if (j == N - 1) {
+                            printf("\033[0;36m--\033[0m");
+                        }
+                        else {
+                            printf("\033[0;36m---+\033[0m");
+                        }
+                    }
+                    else if (i == 5) {
+                        if (j == 0) {
+                            printf("\033[0;36m--+\033[0m");
+                        }
+                        else if (j == N - 1) {
+                            printf("\033[0;36m--\033[0m");
+                        }
+                        else {
+                            printf("\033[0;36m---+\033[0m");
+                        }
+                    }
+                    else {
+                        if (j == 0) {
+                            printf("--+");
+                        }
+                        else if (j == N - 1) {
+                            printf("--");
+                        }
+                        else if (j == 2) {
+                            printf("---");
+                            printf("\033[0;36m+\033[0m");
+                        }
+                        else if (j == 5) {
+                            printf("---");
+                            printf("\033[0;36m+\033[0m");
+                        }
+                        else {
+                            printf("---+");
+                        }
+                    }
+                }
+
+            }
+            /* else {
+
+             }*/
+            printf("\n");
+        }
+
+        if (solveSudoku(grid)) {
+            printf("Solved Sudoku:\n");
+            printGrid(grid);
+        }
+        else {
+            printf("No solution exists.\n");
+        }
+        printf("Want to solve more sudokus ?\n");
+        printf("Press 1 to continue or Press 0 to terminate\n");
+        scanf("%d", &process);
+    }
+    return 0;
+}
